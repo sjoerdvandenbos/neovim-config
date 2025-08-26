@@ -3,6 +3,7 @@ return {
   priority = 1000,
   config = function()
     vim.cmd([[colorscheme quietlight]])
-    vim.cmd([[highlight clear ColorColumn]])
+    --vim.cmd([[highlight clear ColorColumn]])
+    vim.cmd([[set colorcolumn=]])
   end,
 }
