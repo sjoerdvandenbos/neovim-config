@@ -21,7 +21,22 @@ return {
           ['<C-d>'] = cmp.mapping.scroll_docs(4),
           ['<C-f>'] = cmp_action.luasnip_jump_forward(),
           ['<C-b>'] = cmp_action.luasnip_jump_backward(),
+          ["<CR>"] = function(fallback)
+              if cmp.visible() then
+                  cmp.confirm()
+              else
+                  fallback()
+              end
+          end,
+          ["<Esc>"] = function(fallback)
+              if cmp.visible() then
+                  cmp.abort()
+              else
+                  fallback()
+              end
+          end,
         })
       })
     end,
 }
+

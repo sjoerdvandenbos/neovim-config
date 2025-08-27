@@ -1,4 +1,4 @@
-vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)   -- open file explorer
+vim.keymap.set("n", "<leader>pv", function() require("oil").open(nil) end)   -- open file explorer
 
 -- move highlighted with indentation
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
@@ -59,3 +59,10 @@ vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd("so")
 end)
 
+-- VSCode Remaps
+vim.keymap.set("v", "<C-/>", function() -- Would like this to work in normal and insert modes as well...
+    return require("vim._comment").operator() -- Would like this to not exit visual mode...
+end, { expr = true })
+vim.keymap.set("v", "<Tab>", ">|gv")
+vim.keymap.set("v", "<S-Tab>", "<|gv")
+vim.keymap.set("i", "<S-Tab>", "<Esc>|v|<|i")
