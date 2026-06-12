@@ -32,6 +32,9 @@ vim.opt.isfname:append("@-@")
 
 vim.opt.updatetime = 50
 
+vim.opt.laststatus = 2
+vim.opt.statusline = " %f %m%=%l:%c  %p%% "
+
 vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '·', space = '·' }
 
