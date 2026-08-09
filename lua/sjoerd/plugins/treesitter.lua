@@ -1,48 +1,50 @@
 return {
 	'nvim-treesitter/nvim-treesitter',
+    branch = "main",
     build = ":TSUpdate",
     event = { "BufReadPre", "BufNewFile" },
 	config = function()
-		local treesitter = require('nvim-treesitter')
-		treesitter.setup({
-		  -- A list of parser names, or "all" (the five listed parsers should always be installed)
-		  ensure_installed = { 
-              "lua",
-              "vim",
-              "vimdoc",
-              "query",
-              "bash",
-              "python",
-              "haskell",
-              "javascript",
-              "json",
-              "yaml",
-              "html",
-              "xml",
-              "rust",
-          },
+        -- Nvim ships parsers and queries for c, lua, markdown,
+        -- markdown_inline, query, vim and vimdoc, so only the rest needs
+        -- installing. Parsers land in stdpath("data")/site, already on 'rtp'.
+        local ensure_installed = {
+            "bash",
+            "haskell",
+            "html",
+            "javascript",
+            "json",
+            "python",
+            "rust",
+            "xml",
+            "yaml",
+        }
 
-		  -- Install parsers synchronously (only applied to `ensure_installed`)
-		  sync_install = false,
+        local installed = require("nvim-treesitter.config").get_installed("parsers")
+        local missing = vim.tbl_filter(function(lang)
+            return not vim.tbl_contains(installed, lang)
+        end, ensure_installed)
+        if #missing > 0 then
+            require("nvim-treesitter").install(missing)
+        end
 
-		  -- Automatically install missing parsers when entering buffer
-		  -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-		  auto_install = false,
+        -- The main branch dropped the highlight/indent modules: both are
+        -- driven by Nvim's own treesitter runtime now.
+        vim.api.nvim_create_autocmd("FileType", {
+            group = vim.api.nvim_create_augroup("sjoerd.treesitter", {}),
+            callback = function(event)
+                local lang = vim.treesitter.language.get_lang(event.match)
+                if not lang or not vim.treesitter.language.add(lang) then
+                    return
+                end
 
-          indent = { enable = true },
-		  ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
-		  -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
+                vim.treesitter.start(event.buf, lang)
 
-		  highlight = {
-		    enable = true,
-
-		    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-		    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-		    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-		    -- Instead of true it can also be a list of languages
-		    additional_vim_regex_highlighting = false,
-		  },
-		})
+                -- Only where nvim-treesitter installed an indents query;
+                -- otherwise Nvim's own indent script stays in charge.
+                if vim.treesitter.query.get(lang, "indents") then
+                    vim.bo[event.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end
+            end,
+        })
 	end,
 }
-

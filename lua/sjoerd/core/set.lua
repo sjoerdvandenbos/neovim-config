@@ -32,6 +32,16 @@ vim.opt.isfname:append("@-@")
 
 vim.opt.updatetime = 50
 
+-- built-in autocompletion, replaces nvim-cmp
+vim.opt.autocomplete = true
+-- "." current buffer, "w" other windows, "b" other loaded buffers, capped at 5
+-- matches each; "o" is 'omnifunc', which LSP points at vim.lsp.omnifunc().
+vim.opt.complete = { ".^5", "w^5", "b^5", "o" }
+-- noselect: nothing is inserted until <C-y> picks an item.
+-- popup: show the item's documentation next to the menu.
+vim.opt.completeopt = { "menuone", "noselect", "popup", "fuzzy" }
+vim.opt.pumheight = 10
+
 vim.opt.laststatus = 2
 vim.opt.statusline = " %f %m%=%l:%c  %p%% "
 
@@ -61,7 +71,7 @@ vim.keymap.set("n", "<leader>er", function()
   vim.diagnostic.open_float(nil, {
     focus = false,
     border = "rounded",
-    source = "always",
+    source = true,
   })
 end, { desc = "Toggle diagnostic float" })
 
